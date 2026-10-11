@@ -46,6 +46,17 @@ export const academicSessionService = {
     return response.data.data || (response.data as unknown as AcademicSessionItem)
   },
 
+  async updateSession(
+    id: string,
+    payload: Partial<CreateAcademicSessionPayload> & { isClosed?: boolean; status?: string }
+  ): Promise<AcademicSessionItem> {
+    const response = await axiosClient.put<{ data?: AcademicSessionItem; message?: string }>(
+      `/academic-sessions/${id}`,
+      payload
+    )
+    return response.data.data || (response.data as unknown as AcademicSessionItem)
+  },
+
   async setCurrentSession(id: string): Promise<{ success: boolean; message?: string }> {
     const response = await axiosClient.post<{ message?: string }>(`/academic-sessions/${id}/set-current`)
     return { success: true, message: response.data?.message || 'Academic session marked as current' }

@@ -46,6 +46,27 @@ export const subjectService = {
     return response.data.data || (response.data as unknown as SubjectItem)
   },
 
+  async getSubjectById(id: string): Promise<SubjectItem> {
+    const response = await axiosClient.get<{ data?: SubjectItem }>(`/subjects/${id}`)
+    return response.data.data || (response.data as unknown as SubjectItem)
+  },
+
+  async updateSubject(
+    id: string,
+    payload: Partial<CreateSubjectPayload> & { status?: string }
+  ): Promise<SubjectItem> {
+    const response = await axiosClient.put<{ data?: SubjectItem; message?: string }>(
+      `/subjects/${id}`,
+      payload
+    )
+    return response.data.data || (response.data as unknown as SubjectItem)
+  },
+
+  async deleteSubject(id: string): Promise<{ success: boolean; message?: string }> {
+    const response = await axiosClient.delete<{ message?: string }>(`/subjects/${id}`)
+    return { success: true, message: response.data?.message || 'Subject removed successfully' }
+  },
+
   // --- Class-Subject Mapping ---
   async mapSubjectToClass(
     payload: CreateClassSubjectMappingPayload

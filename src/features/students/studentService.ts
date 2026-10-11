@@ -66,6 +66,39 @@ export const studentService = {
     return data as Student;
   },
 
+  async updateStudent(
+    id: string,
+    payload: Partial<CreateStudentDto> & { status?: string }
+  ): Promise<Student> {
+    const res = await axiosClient.put<Student | { data: Student }>(`/students/${id}`, payload);
+    const data = res.data;
+    if (data && typeof data === 'object' && 'data' in data) {
+      return (data as { data: Student }).data;
+    }
+    return data as Student;
+  },
+
+  async deleteStudent(id: string): Promise<{ success: boolean; message?: string }> {
+    const res = await axiosClient.delete<{ success: boolean; message?: string }>(`/students/${id}`);
+    return res.data;
+  },
+
+  async enrollStudent(
+    id: string,
+    payload: {
+      sessionId: string;
+      classId: string;
+      sectionId: string;
+      rollNumber?: string;
+    }
+  ): Promise<{ success: boolean; message?: string }> {
+    const res = await axiosClient.post<{ success: boolean; message?: string }>(
+      `/students/${id}/enroll`,
+      payload
+    );
+    return res.data;
+  },
+
   async transferStudent(id: string, payload: StudentTransferDto): Promise<{ success: boolean; message?: string }> {
     const res = await axiosClient.post<{ success: boolean; message?: string }>(
       `/students/${id}/transfer`,

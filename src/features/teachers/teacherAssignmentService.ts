@@ -33,10 +33,24 @@ export const teacherAssignmentService = {
     return data as TeacherAssignment;
   },
 
-  async deleteAssignment(id: string): Promise<{ success: boolean; message?: string }> {
-    const res = await axiosClient.delete<{ success: boolean; message?: string }>(
+  async getAssignmentById(id: string): Promise<TeacherAssignment> {
+    const res = await axiosClient.get<TeacherAssignment | { data: TeacherAssignment }>(
       `/teacher-assignments/${id}`
     );
-    return res.data;
+    const data = res.data;
+    if (data && typeof data === 'object' && 'data' in data) {
+      return (data as { data: TeacherAssignment }).data;
+    }
+    return data as TeacherAssignment;
+  },
+
+  async deleteAssignment(id: string): Promise<{ success: boolean; message?: string }> {
+    const res = await axiosClient.delete<{ success?: boolean; message?: string }>(
+      `/teacher-assignments/${id}`
+    );
+    return {
+      success: res.data?.success !== false,
+      message: res.data?.message || 'Assignment removed successfully',
+    };
   },
 };

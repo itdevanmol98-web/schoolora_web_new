@@ -57,6 +57,23 @@ export const parentService = {
     return data as Parent;
   },
 
+  async updateParent(
+    id: string,
+    payload: Partial<CreateParentDto> & { status?: string }
+  ): Promise<Parent> {
+    const res = await axiosClient.put<Parent | { data: Parent }>(`/parents/${id}`, payload);
+    const data = res.data;
+    if (data && typeof data === 'object' && 'data' in data) {
+      return (data as { data: Parent }).data;
+    }
+    return data as Parent;
+  },
+
+  async deleteParent(id: string): Promise<{ success: boolean; message?: string }> {
+    const res = await axiosClient.delete<{ success: boolean; message?: string }>(`/parents/${id}`);
+    return res.data;
+  },
+
   async linkStudent(parentId: string, payload: LinkStudentDto): Promise<ParentStudentLink> {
     const res = await axiosClient.post<ParentStudentLink | { data: ParentStudentLink }>(
       `/parents/${parentId}/students`,
