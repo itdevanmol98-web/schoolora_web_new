@@ -6,12 +6,12 @@ import DashboardPlaceholderPage from '@/pages/DashboardPlaceholderPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
 describe('Application Pages and Route Views', () => {
-  it('renders LandingPage with Schoolora ERP branding', () => {
+  it('renders LandingPage with ERP branding and hero actions', () => {
     renderWithProviders(<LandingPage />, { initialEntries: ['/'] })
     expect(
-      screen.getByRole('heading', { level: 1, name: /Schoolora ERP Platform/i })
+      screen.getByRole('heading', { level: 1, name: /Smart School Management/i })
     ).toBeInTheDocument()
-    expect(screen.getByText(/Architectural Foundation/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/Book a Free Demo/i).length).toBeGreaterThan(0)
   })
 
   it('renders DashboardPlaceholderPage without mock business data', () => {
