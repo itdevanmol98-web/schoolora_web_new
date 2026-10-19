@@ -1,78 +1,101 @@
 import React, { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
-import CssBaseline from '@mui/material/CssBaseline'
-import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemButton from '@mui/material/ListItemButton'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemText from '@mui/material/ListItemText'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import TextField from '@mui/material/TextField'
-import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import Tooltip from '@mui/material/Tooltip'
-import Avatar from '@mui/material/Avatar'
-import MenuIcon from '@mui/icons-material/Menu'
-import Brightness4Icon from '@mui/icons-material/Brightness4'
-import Brightness7Icon from '@mui/icons-material/Brightness7'
-import DashboardIcon from '@mui/icons-material/Dashboard'
-import SchoolIcon from '@mui/icons-material/School'
-import HomeIcon from '@mui/icons-material/Home'
-import LockOpenIcon from '@mui/icons-material/LockOpen'
-import DevicesIcon from '@mui/icons-material/Devices'
-import HistoryIcon from '@mui/icons-material/History'
-import VpnKeyIcon from '@mui/icons-material/VpnKey'
-import LogoutIcon from '@mui/icons-material/Logout'
-import BusinessIcon from '@mui/icons-material/Business'
-import AccountTreeIcon from '@mui/icons-material/AccountTree'
-import PeopleIcon from '@mui/icons-material/People'
-import SecurityIcon from '@mui/icons-material/Security'
-import LanguageIcon from '@mui/icons-material/Language'
-import SettingsIcon from '@mui/icons-material/Settings'
-import CardMembershipIcon from '@mui/icons-material/CardMembership'
-import ReceiptIcon from '@mui/icons-material/Receipt'
-import PaymentIcon from '@mui/icons-material/Payment'
-import LocalOfferIcon from '@mui/icons-material/LocalOffer'
-import AssessmentIcon from '@mui/icons-material/Assessment'
-import TuneIcon from '@mui/icons-material/Tune'
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
-import MenuBookIcon from '@mui/icons-material/MenuBook'
-import ViewListIcon from '@mui/icons-material/ViewList'
-import BadgeIcon from '@mui/icons-material/Badge'
-import EscalatorWarningIcon from '@mui/icons-material/EscalatorWarning'
-import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount'
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
-import Chip from '@mui/material/Chip'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import Divider from '@mui/material/Divider'
+import Collapse from '@mui/material/Collapse'
+import Popover from '@mui/material/Popover'
+import Badge from '@mui/material/Badge'
+import {
+  Menu as MenuIcon,
+  Search,
+  Bell,
+  Sun,
+  Moon,
+  Globe,
+  ChevronDown,
+  ChevronRight,
+  Crown,
+  MoreHorizontal,
+  LayoutDashboard,
+  Building2,
+  ClipboardList,
+  CreditCard,
+  Receipt,
+  Users,
+  Sliders,
+  LayoutTemplate,
+  Layers,
+  LifeBuoy,
+  Activity,
+  BarChart3,
+  Megaphone,
+  FolderGit2,
+  Clock,
+  Mail,
+  ShieldCheck,
+  HelpCircle,
+  Settings,
+  User,
+  LogOut,
+  X,
+} from 'lucide-react'
+import { AxionexaLogo } from '@/assets/logo/AxionexaLogo'
 import { useThemeMode } from '@/theme/ThemeProvider'
 import { useAppDispatch } from '@/hooks/useAppDispatch'
 import { useAppSelector } from '@/hooks/useAppSelector'
 import { logoutThunk } from '@/features/auth/authSlice'
 import { PATHS } from '@/routes/paths'
-import AppButton from '@/components/common/Button'
 import { getSchoolId, setSchoolId } from '@/utils/tokenStorage'
 import { schoolsService } from '@/features/schools/schoolService'
 import type { School } from '@/features/schools/types'
 
-const DRAWER_WIDTH = 260
+const SIDEBAR_EXPANDED_WIDTH = 260
+const SIDEBAR_COLLAPSED_WIDTH = 74
+const TOP_BAR_HEIGHT = 68
+
+interface NavItem {
+  id: string
+  label: string
+  path?: string
+  icon: React.ReactNode
+  badge?: number | string
+  subItems?: Array<{ label: string; path: string }>
+}
 
 export const AppLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({
+    'users-roles': false,
+    'modules-settings': false,
+    'support-tickets': false,
+    'backup-security': false,
+  })
+
+  // Top bar states
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchSuggestionsOpen, setSearchSuggestionsOpen] = useState(false)
+  const [searchAnchor, setSearchAnchor] = useState<null | HTMLElement>(null)
+
+  const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
+  const [languageAnchor, setLanguageAnchor] = useState<null | HTMLElement>(null)
+  const [selectedLanguage, setSelectedLanguage] = useState<'English' | 'Hindi'>('English')
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null)
+
+  // Multi-campus schools
   const [availableSchools, setAvailableSchools] = useState<School[]>([])
   const [selectedSchool, setSelectedSchool] = useState<string>(getSchoolId() || '')
+
   const { mode, toggleTheme } = useThemeMode()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-
   const { isAuthenticated, user } = useAppSelector((state) => state.auth)
 
   React.useEffect(() => {
@@ -99,457 +122,982 @@ export const AppLayout: React.FC = () => {
     window.location.reload()
   }
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen)
-  }
-
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setUserMenuAnchor(event.currentTarget)
-  }
-
-  const handleCloseUserMenu = () => {
-    setUserMenuAnchor(null)
-  }
-
   const handleLogout = async () => {
-    handleCloseUserMenu()
+    setUserMenuAnchor(null)
     await dispatch(logoutThunk())
     navigate(PATHS.LOGIN, { replace: true })
   }
 
-  const navSections = isAuthenticated
-    ? [
-        {
-          title: 'School Administration',
-          items: [
-            { label: 'School Profile', path: PATHS.SCHOOL_PROFILE, icon: <AccountBalanceIcon /> },
-            { label: 'School Settings', path: PATHS.SCHOOL_SETTINGS, icon: <TuneIcon /> },
-          ],
-        },
-        {
-          title: 'Academics',
-          items: [
-            { label: 'Academic Sessions', path: PATHS.ACADEMIC_SESSIONS, icon: <CalendarMonthIcon /> },
-            { label: 'Classes & Grades', path: PATHS.CLASSES, icon: <MeetingRoomIcon /> },
-            { label: 'Class Sections', path: PATHS.SECTIONS, icon: <MeetingRoomIcon /> },
-            { label: 'Subjects Catalog', path: PATHS.SUBJECTS, icon: <MenuBookIcon /> },
-            { label: 'Curriculum Mapping', path: PATHS.CLASS_SUBJECTS, icon: <ViewListIcon /> },
-            { label: 'Teacher Assignments', path: PATHS.TEACHER_ASSIGNMENTS, icon: <BadgeIcon /> },
-          ],
-        },
-        {
-          title: 'People',
-          items: [
-            { label: 'Students Directory', path: PATHS.STUDENTS, icon: <SchoolIcon /> },
-            { label: 'Parents / Guardians', path: PATHS.PARENTS, icon: <EscalatorWarningIcon /> },
-            { label: 'Teachers & Faculty', path: PATHS.TEACHERS, icon: <SupervisorAccountIcon /> },
-          ],
-        },
-        {
-          title: 'Student Operations',
-          items: [
-            { label: 'Lifecycle Operations', path: PATHS.STUDENT_OPERATIONS, icon: <SwapHorizIcon /> },
-          ],
-        },
-        {
-          title: 'Platform Administration',
-          items: [
-            { label: 'Super Admin Dashboard', path: PATHS.ADMIN_DASHBOARD, icon: <DashboardIcon /> },
-            { label: 'Tenants Directory', path: PATHS.TENANTS, icon: <BusinessIcon /> },
-            { label: 'Campuses & Schools', path: PATHS.SCHOOLS, icon: <SchoolIcon /> },
-            { label: 'Branches & Wings', path: PATHS.BRANCHES, icon: <AccountTreeIcon /> },
-            { label: 'User Administration', path: PATHS.USERS, icon: <PeopleIcon /> },
-            { label: 'Roles & Permissions', path: PATHS.ROLES, icon: <SecurityIcon /> },
-            { label: 'Custom Domains', path: PATHS.DOMAINS, icon: <LanguageIcon /> },
-            { label: 'System Settings', path: PATHS.SETTINGS, icon: <SettingsIcon /> },
-            { label: 'Security Audit Logs', path: PATHS.AUDIT_LOGS, icon: <HistoryIcon /> },
-          ],
-        },
-        {
-          title: 'Subscription & Billing',
-          items: [
-            { label: 'Tenant Subscription', path: PATHS.SUBSCRIPTIONS, icon: <CardMembershipIcon /> },
-            { label: 'Plans Catalog', path: PATHS.SUBSCRIPTION_PLANS, icon: <ReceiptIcon /> },
-            { label: 'Invoices Ledger', path: PATHS.INVOICES, icon: <ReceiptIcon /> },
-            { label: 'Payment Records', path: PATHS.PAYMENTS, icon: <PaymentIcon /> },
-            { label: 'Promotional Coupons', path: PATHS.COUPONS, icon: <LocalOfferIcon /> },
-            { label: 'Billing Telemetry', path: PATHS.BILLING_ANALYTICS, icon: <AssessmentIcon /> },
-          ],
-        },
-        {
-          title: 'Security & Access',
-          items: [
-            { label: 'Active Sessions', path: PATHS.SESSIONS, icon: <DevicesIcon /> },
-            { label: 'Sign-In History', path: PATHS.LOGIN_HISTORY, icon: <HistoryIcon /> },
-            { label: 'Change Password', path: PATHS.CHANGE_PASSWORD, icon: <VpnKeyIcon /> },
-          ],
-        },
-      ]
-    : [
-        {
-          title: 'Portal Access',
-          items: [
-            { label: 'Welcome / Home', path: PATHS.ROOT, icon: <HomeIcon /> },
-            { label: 'Sign In (Portal)', path: PATHS.LOGIN, icon: <LockOpenIcon /> },
-          ],
-        },
-      ]
+  const toggleSubmenu = (menuId: string) => {
+    if (isCollapsed) setIsCollapsed(false)
+    setExpandedMenus((prev) => ({
+      ...prev,
+      [menuId]: !prev[menuId],
+    }))
+  }
 
-  const drawerContent = (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Toolbar sx={{ px: 2.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <SchoolIcon color="primary" sx={{ fontSize: 32 }} />
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-            Schoolora
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            ERP Platform
-          </Typography>
+  // Navigation Items matching the screenshot and specifications
+  const mainNavItems: NavItem[] = [
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      path: PATHS.ADMIN_DASHBOARD,
+      icon: <LayoutDashboard size={19} />,
+    },
+    {
+      id: 'schools',
+      label: 'Schools',
+      path: PATHS.SCHOOLS,
+      icon: <Building2 size={19} />,
+    },
+    {
+      id: 'school-requests',
+      label: 'School Requests',
+      path: PATHS.SCHOOLS,
+      icon: <ClipboardList size={19} />,
+      badge: 3,
+    },
+    {
+      id: 'subscriptions',
+      label: 'Subscriptions',
+      path: PATHS.SUBSCRIPTIONS,
+      icon: <CreditCard size={19} />,
+    },
+    {
+      id: 'billing-invoices',
+      label: 'Billing & Invoices',
+      path: PATHS.INVOICES,
+      icon: <Receipt size={19} />,
+    },
+    {
+      id: 'users-roles',
+      label: 'Users & Roles',
+      icon: <Users size={19} />,
+      subItems: [
+        { label: 'Users Directory', path: PATHS.USERS },
+        { label: 'Roles & Permissions', path: PATHS.ROLES },
+      ],
+    },
+    {
+      id: 'modules-settings',
+      label: 'Modules & Settings',
+      icon: <Sliders size={19} />,
+      subItems: [
+        { label: 'System Settings', path: PATHS.SETTINGS },
+        { label: 'Custom Domains', path: PATHS.DOMAINS },
+      ],
+    },
+    {
+      id: 'templates',
+      label: 'Templates',
+      path: PATHS.SUBJECTS,
+      icon: <LayoutTemplate size={19} />,
+    },
+    {
+      id: 'integrations',
+      label: 'Integrations',
+      path: PATHS.SETTINGS,
+      icon: <Layers size={19} />,
+    },
+    {
+      id: 'support-tickets',
+      label: 'Support & Tickets',
+      icon: <LifeBuoy size={19} />,
+      subItems: [
+        { label: 'All Tickets', path: PATHS.ADMIN_DASHBOARD },
+        { label: 'Pending Issues', path: PATHS.ADMIN_DASHBOARD },
+      ],
+    },
+    {
+      id: 'system-health',
+      label: 'System Health',
+      path: PATHS.AUDIT_LOGS,
+      icon: <Activity size={19} />,
+    },
+    {
+      id: 'reports-analytics',
+      label: 'Reports & Analytics',
+      path: PATHS.BILLING_ANALYTICS,
+      icon: <BarChart3 size={19} />,
+    },
+    {
+      id: 'announcements',
+      label: 'Announcements',
+      path: PATHS.ADMIN_DASHBOARD,
+      icon: <Megaphone size={19} />,
+    },
+    {
+      id: 'manage-content',
+      label: 'Manage Content',
+      path: PATHS.ADMIN_DASHBOARD,
+      icon: <FolderGit2 size={19} />,
+    },
+    {
+      id: 'activity-logs',
+      label: 'Activity Logs',
+      path: PATHS.AUDIT_LOGS,
+      icon: <Clock size={19} />,
+    },
+    {
+      id: 'email-notifications',
+      label: 'Email & Notifications',
+      path: PATHS.SETTINGS,
+      icon: <Mail size={19} />,
+    },
+    {
+      id: 'backup-security',
+      label: 'Backup & Security',
+      icon: <ShieldCheck size={19} />,
+      subItems: [
+        { label: 'Audit Trail', path: PATHS.AUDIT_LOGS },
+        { label: 'Active Sessions', path: PATHS.SESSIONS },
+      ],
+    },
+  ]
+
+  const bottomNavItems: NavItem[] = [
+    {
+      id: 'help-documentation',
+      label: 'Help & Documentation',
+      path: PATHS.ROOT,
+      icon: <HelpCircle size={19} />,
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      path: PATHS.SETTINGS,
+      icon: <Settings size={19} />,
+    },
+    {
+      id: 'my-profile',
+      label: 'My Profile',
+      path: PATHS.SCHOOL_PROFILE,
+      icon: <User size={19} />,
+    },
+  ]
+
+  const isCurrentActive = (item: NavItem) => {
+    if (item.path) {
+      if (item.id === 'dashboard') {
+        return location.pathname === '/dashboard' || location.pathname === '/admin/dashboard'
+      }
+      return location.pathname === item.path
+    }
+    if (item.subItems) {
+      return item.subItems.some((s) => location.pathname === s.path)
+    }
+    return false
+  }
+
+  // Sidebar Component JSX
+  const sidebarContent = (
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: '#0d1527',
+        color: '#94a3b8',
+        overflowX: 'hidden',
+        userSelect: 'none',
+      }}
+    >
+      {/* Super Admin Control Panel Header */}
+      <Box
+        sx={{
+          px: isCollapsed ? 1.5 : 2.5,
+          py: 2.2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: isCollapsed ? 'center' : 'space-between',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 38,
+              height: 38,
+              borderRadius: '50%',
+              bgcolor: 'rgba(245, 158, 11, 0.15)',
+              color: '#f59e0b',
+              border: '1.5px solid rgba(245, 158, 11, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Crown size={20} />
+          </Box>
+          {!isCollapsed && (
+            <Box>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 800, color: '#ffffff', fontSize: '0.88rem', lineHeight: 1.2 }}
+              >
+                Super Admin
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: '#94a3b8', fontSize: '0.72rem', display: 'block', mt: 0.2 }}
+              >
+                Central Control Panel
+              </Typography>
+            </Box>
+          )}
         </Box>
-      </Toolbar>
-      <Divider />
-      <Box sx={{ px: 2, py: 1.5 }}>
-        <Chip
-          label="Phase 4 • School Setup & Academics"
-          size="small"
-          color="primary"
-          variant="outlined"
-          sx={{ width: '100%', fontWeight: 600, fontSize: '0.75rem' }}
-        />
+        {!isCollapsed && (
+          <IconButton size="small" sx={{ color: '#64748b', '&:hover': { color: '#ffffff' } }}>
+            <MoreHorizontal size={18} />
+          </IconButton>
+        )}
       </Box>
-      <Box sx={{ px: 1, flexGrow: 1, overflowY: 'auto' }}>
-        {navSections.map((section, sIdx) => (
-          <Box key={section.title} sx={{ mb: 2 }}>
-            {sIdx > 0 && <Divider sx={{ my: 1.5 }} />}
-            <Typography
-              variant="caption"
-              sx={{
-                px: 1.5,
-                fontWeight: 700,
-                color: 'text.secondary',
-                textTransform: 'uppercase',
-                fontSize: '0.7rem',
-                letterSpacing: 0.5,
-                display: 'block',
-                mb: 0.5,
-              }}
-            >
-              {section.title}
-            </Typography>
-            <List disablePadding>
-              {section.items.map((item) => {
-                const isSelected = location.pathname === item.path
 
-                return (
-                  <ListItem key={item.path} disablePadding sx={{ mb: 0.25 }}>
-                    <ListItemButton
-                      selected={isSelected}
-                      onClick={() => {
-                        navigate(item.path)
-                        if (mobileOpen) setMobileOpen(false)
-                      }}
+      {/* Main Navigation Scroll Area */}
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflowY: 'auto',
+          py: 1.5,
+          px: isCollapsed ? 1 : 1.75,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0.5,
+          '&::-webkit-scrollbar': { width: 4 },
+          '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255, 255, 255, 0.1)', borderRadius: 2 },
+        }}
+      >
+        {mainNavItems.map((item) => {
+          const active = isCurrentActive(item)
+          const isExpanded = expandedMenus[item.id]
+
+          return (
+            <Box key={item.id}>
+              <Tooltip title={isCollapsed ? item.label : ''} placement="right">
+                <Box
+                  onClick={() => {
+                    if (item.subItems) {
+                      toggleSubmenu(item.id)
+                    } else if (item.path) {
+                      navigate(item.path)
+                      if (mobileOpen) setMobileOpen(false)
+                    }
+                  }}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: isCollapsed ? 'center' : 'space-between',
+                    px: isCollapsed ? 1.25 : 1.75,
+                    py: 1,
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    bgcolor: active ? '#1e60f0' : 'transparent',
+                    color: active ? '#ffffff' : '#94a3b8',
+                    transition: 'all 0.15s ease',
+                    fontWeight: active ? 700 : 500,
+                    fontSize: '0.84rem',
+                    '&:hover': {
+                      bgcolor: active ? '#1e60f0' : 'rgba(255, 255, 255, 0.06)',
+                      color: '#ffffff',
+                    },
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
+                    <Box
                       sx={{
-                        borderRadius: 2,
-                        py: 0.75,
-                        px: 1.5,
-                        '&.Mui-selected': {
-                          bgcolor: 'primary.main',
-                          color: '#fff',
-                          '&:hover': {
-                            bgcolor: 'primary.dark',
-                          },
-                          '& .MuiListItemIcon-root': {
-                            color: '#fff',
-                          },
-                        },
+                        color: active ? '#ffffff' : '#94a3b8',
+                        display: 'flex',
+                        alignItems: 'center',
                       }}
                     >
-                      <ListItemIcon
+                      {item.icon}
+                    </Box>
+                    {!isCollapsed && (
+                      <Typography
+                        variant="body2"
+                        noWrap
                         sx={{
-                          minWidth: 36,
-                          color: isSelected ? '#fff' : 'text.secondary',
-                          '& .MuiSvgIcon-root': { fontSize: 20 },
+                          fontSize: '0.84rem',
+                          fontWeight: active ? 700 : 500,
+                          color: active ? '#ffffff' : 'inherit',
                         }}
                       >
-                        {item.icon}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          <Typography
-                            sx={{
-                              fontSize: '0.825rem',
-                              fontWeight: isSelected ? 700 : 500,
-                            }}
-                          >
-                            {item.label}
-                          </Typography>
-                        }
-                      />
-                    </ListItemButton>
-                  </ListItem>
-                )
-              })}
-            </List>
-          </Box>
+                        {item.label}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  {!isCollapsed && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                      {item.badge !== undefined && (
+                        <Box
+                          sx={{
+                            px: 0.85,
+                            py: 0.15,
+                            borderRadius: '9999px',
+                            bgcolor: '#ef4444',
+                            color: '#ffffff',
+                            fontSize: '0.7rem',
+                            fontWeight: 800,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {item.badge}
+                        </Box>
+                      )}
+                      {item.subItems && (
+                        <Box sx={{ color: '#64748b', display: 'flex', alignItems: 'center' }}>
+                          {isExpanded ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                        </Box>
+                      )}
+                    </Box>
+                  )}
+                </Box>
+              </Tooltip>
+
+              {/* Submenu Items */}
+              {item.subItems && !isCollapsed && (
+                <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                  <Box sx={{ pl: 4.5, pr: 1, py: 0.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    {item.subItems.map((sub) => {
+                      const isSubActive = location.pathname === sub.path
+
+                      return (
+                        <Box
+                          key={sub.label}
+                          onClick={() => {
+                            navigate(sub.path)
+                            if (mobileOpen) setMobileOpen(false)
+                          }}
+                          sx={{
+                            px: 1.5,
+                            py: 0.65,
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '0.78rem',
+                            fontWeight: isSubActive ? 700 : 500,
+                            color: isSubActive ? '#38bdf8' : '#64748b',
+                            bgcolor: isSubActive ? 'rgba(56, 189, 248, 0.08)' : 'transparent',
+                            '&:hover': {
+                              color: '#ffffff',
+                              bgcolor: 'rgba(255, 255, 255, 0.05)',
+                            },
+                          }}
+                        >
+                          {sub.label}
+                        </Box>
+                      )
+                    })}
+                  </Box>
+                </Collapse>
+              )}
+            </Box>
+          )
+        })}
+
+        {/* Separator */}
+        <Divider sx={{ my: 1.5, borderColor: 'rgba(255, 255, 255, 0.08)' }} />
+
+        {/* Bottom Section Items */}
+        {bottomNavItems.map((item) => (
+          <Tooltip key={item.id} title={isCollapsed ? item.label : ''} placement="right">
+            <Box
+              onClick={() => {
+                if (item.path) {
+                  navigate(item.path)
+                  if (mobileOpen) setMobileOpen(false)
+                }
+              }}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                px: isCollapsed ? 1.25 : 1.75,
+                py: 0.9,
+                borderRadius: '10px',
+                cursor: 'pointer',
+                color: '#94a3b8',
+                gap: 1.5,
+                fontSize: '0.84rem',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.06)',
+                  color: '#ffffff',
+                },
+              }}
+            >
+              <Box sx={{ color: '#94a3b8', display: 'flex', alignItems: 'center' }}>
+                {item.icon}
+              </Box>
+              {!isCollapsed && (
+                <Typography variant="body2" noWrap sx={{ fontSize: '0.84rem' }}>
+                  {item.label}
+                </Typography>
+              )}
+            </Box>
+          </Tooltip>
         ))}
-      </Box>
-      <Divider />
-      <Box sx={{ p: 2, textAlign: 'center' }}>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-          Schoolora ERP v1.0.0
-        </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-          Phase 3 Super Admin & Billing
-        </Typography>
+
+        {/* Logout */}
+        <Tooltip title={isCollapsed ? 'Logout' : ''} placement="right">
+          <Box
+            onClick={handleLogout}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: isCollapsed ? 'center' : 'flex-start',
+              px: isCollapsed ? 1.25 : 1.75,
+              py: 0.9,
+              borderRadius: '10px',
+              cursor: 'pointer',
+              color: '#ef4444',
+              gap: 1.5,
+              fontSize: '0.84rem',
+              mt: 0.5,
+              '&:hover': {
+                bgcolor: 'rgba(239, 68, 68, 0.1)',
+                color: '#f87171',
+              },
+            }}
+          >
+            <LogOut size={19} />
+            {!isCollapsed && (
+              <Typography variant="body2" sx={{ fontSize: '0.84rem', fontWeight: 600 }}>
+                Logout
+              </Typography>
+            )}
+          </Box>
+        </Tooltip>
       </Box>
     </Box>
   )
 
-  return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <CssBaseline />
+  const currentSidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH
 
-      {/* Top Application Bar */}
-      <AppBar
-        position="fixed"
-        elevation={0}
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f4f6fa' }}>
+      {/* 1. Full-Width Top Header Bar */}
+      <Box
+        component="header"
         sx={{
-          width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-          ml: { sm: `${DRAWER_WIDTH}px` },
-          bgcolor: 'background.paper',
-          color: 'text.primary',
-          borderBottom: 1,
-          borderColor: 'divider',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: TOP_BAR_HEIGHT,
+          bgcolor: '#ffffff',
+          borderBottom: '1px solid #e2e8f0',
+          zIndex: 1201,
+          px: { xs: 2, sm: 3 },
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
         }}
       >
-        <Toolbar>
+        {/* Left: Sidebar Toggle & AxioNexa ERP Brand Logo */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2.5 } }}>
           <IconButton
-            color="inherit"
-            aria-label="open navigation drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            onClick={() => {
+              if (window.innerWidth < 900) {
+                setMobileOpen(!mobileOpen)
+              } else {
+                setIsCollapsed(!isCollapsed)
+              }
+            }}
+            size="small"
+            sx={{
+              color: '#334155',
+              p: 1,
+              borderRadius: '10px',
+              bgcolor: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              '&:hover': { bgcolor: '#f1f5f9' },
+            }}
+            title="Toggle Sidebar"
           >
-            <MenuIcon />
+            <MenuIcon size={19} />
           </IconButton>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 600 }}>
-              Schoolora ERP
-            </Typography>
-          </Box>
 
-          {availableSchools.length > 0 && (
-            <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', ml: 3 }}>
-              <TextField
-                select
-                size="small"
-                label="Active Campus"
-                value={selectedSchool}
-                onChange={(e) => handleSchoolChange(e.target.value)}
-                sx={{ minWidth: 220 }}
-              >
-                {availableSchools.map((sch) => (
-                  <MenuItem key={sch.id} value={sch.id}>
-                    {sch.name} ({sch.code})
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Box>
-          )}
-
-          <Box sx={{ flexGrow: 1 }} />
-
-          <Tooltip title={`Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`}>
-            <IconButton
-              onClick={toggleTheme}
-              color="inherit"
-              aria-label="Toggle light/dark theme"
-              sx={{ mr: 1 }}
+          {/* AxioNexa Brand Logo + ERP Badge */}
+          <Box
+            onClick={() => navigate(PATHS.ADMIN_DASHBOARD)}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.25,
+              cursor: 'pointer',
+              textDecoration: 'none',
+            }}
+          >
+            <AxionexaLogo size="sm" showCompanySubtitle={true} showTagline={false} />
+            <Box
+              sx={{
+                px: 1,
+                py: 0.35,
+                bgcolor: '#1e60f0',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.72rem',
+                borderRadius: '6px',
+                letterSpacing: '0.04em',
+                lineHeight: 1,
+              }}
             >
-              {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              ERP
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Center: Global Search Input Field */}
+        <Box
+          sx={{
+            display: { xs: 'none', md: 'flex' },
+            alignItems: 'center',
+            gap: 1.25,
+            width: { md: 360, lg: 440 },
+            px: 2,
+            py: 0.85,
+            borderRadius: '9999px',
+            bgcolor: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            transition: 'all 0.2s ease',
+            '&:focus-within': {
+              borderColor: '#1e60f0',
+              boxShadow: '0 0 0 3px rgba(30, 96, 240, 0.1)',
+              bgcolor: '#ffffff',
+            },
+          }}
+        >
+          <Search size={17} color="#94a3b8" />
+          <Box
+            component="input"
+            type="text"
+            placeholder="Search schools, users, modules, settings..."
+            value={searchQuery}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setSearchQuery(e.target.value)
+              setSearchSuggestionsOpen(Boolean(e.target.value))
+            }}
+            onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
+              setSearchAnchor(e.currentTarget)
+              if (searchQuery) setSearchSuggestionsOpen(true)
+            }}
+            sx={{
+              border: 'none',
+              outline: 'none',
+              bgcolor: 'transparent',
+              width: '100%',
+              fontSize: '0.84rem',
+              color: '#0f172a',
+              '&::placeholder': { color: '#94a3b8' },
+            }}
+          />
+          {searchQuery && (
+            <IconButton size="small" onClick={() => setSearchQuery('')} sx={{ p: 0.25, color: '#94a3b8' }}>
+              <X size={14} />
             </IconButton>
-          </Tooltip>
+          )}
+        </Box>
 
-          {isAuthenticated && user ? (
-            <>
-              <Tooltip title="User Account Menu">
-                <Box
-                  onClick={handleOpenUserMenu}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    cursor: 'pointer',
-                    p: 0.5,
-                    borderRadius: 2,
-                    '&:hover': { bgcolor: 'action.hover' },
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="user account menu"
-                >
-                  <Avatar
-                    sx={{
-                      width: 34,
-                      height: 34,
-                      bgcolor: 'primary.main',
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {user.firstName?.charAt(0) || 'U'}
-                  </Avatar>
-                  <Box sx={{ display: { xs: 'none', md: 'block' }, textAlign: 'left' }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
-                      {user.firstName} {user.lastName}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {user.email}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Tooltip>
+        {/* Search Quick Dropdown */}
+        <Popover
+          open={searchSuggestionsOpen && Boolean(searchQuery)}
+          anchorEl={searchAnchor}
+          onClose={() => setSearchSuggestionsOpen(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          slotProps={{
+            paper: {
+              sx: {
+                width: 440,
+                mt: 1,
+                p: 1.5,
+                borderRadius: '12px',
+                boxShadow: '0 10px 25px rgba(15,23,42,0.12)',
+              },
+            },
+          }}
+        >
+          <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, px: 1, mb: 0.5, display: 'block' }}>
+            QUICK RESULTS FOR &quot;{searchQuery}&quot;
+          </Typography>
+          <MenuItem onClick={() => { navigate(PATHS.SCHOOLS); setSearchSuggestionsOpen(false) }}>
+            <Building2 size={16} style={{ marginRight: 10, color: '#1e60f0' }} />
+            Schools matching &quot;{searchQuery}&quot;
+          </MenuItem>
+          <MenuItem onClick={() => { navigate(PATHS.USERS); setSearchSuggestionsOpen(false) }}>
+            <Users size={16} style={{ marginRight: 10, color: '#8b5cf6' }} />
+            Users matching &quot;{searchQuery}&quot;
+          </MenuItem>
+          <MenuItem onClick={() => { navigate(PATHS.SETTINGS); setSearchSuggestionsOpen(false) }}>
+            <Settings size={16} style={{ marginRight: 10, color: '#f59e0b' }} />
+            Platform Settings
+          </MenuItem>
+        </Popover>
 
-              <Menu
-                anchorEl={userMenuAnchor}
-                open={Boolean(userMenuAnchor)}
-                onClose={handleCloseUserMenu}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                slotProps={{
-                  paper: {
-                    sx: {
-                      minWidth: 220,
-                      borderRadius: 2,
-                      boxShadow: (theme: any) =>
-                        theme.palette.mode === 'dark'
-                          ? '0 10px 25px rgba(0,0,0,0.7)'
-                          : '0 10px 25px rgba(0,0,0,0.1)',
-                    },
+        {/* Right Actions: Notifications, Theme Toggle, Language, Super Admin Profile */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.75 } }}>
+          {/* Notification Bell with Badge */}
+          <Tooltip title="Notifications">
+            <IconButton
+              onClick={(e) => setNotificationAnchor(e.currentTarget)}
+              sx={{
+                p: 1,
+                borderRadius: '10px',
+                color: '#475569',
+                bgcolor: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                '&:hover': { bgcolor: '#f1f5f9' },
+              }}
+            >
+              <Badge
+                badgeContent={5}
+                color="error"
+                sx={{
+                  '& .MuiBadge-badge': {
+                    fontSize: '0.65rem',
+                    height: 16,
+                    minWidth: 16,
+                    px: 0.4,
+                    fontWeight: 800,
                   },
                 }}
               >
-                <Box sx={{ px: 2, py: 1.5 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                    {user.firstName} {user.lastName}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                    {user.email}
-                  </Typography>
-                  <Chip
-                    label={`Status: ${user.status}`}
-                    size="small"
-                    color={user.status === 'ACTIVE' ? 'success' : 'default'}
-                    sx={{ mt: 1, fontSize: '0.7rem', height: 20 }}
-                  />
-                </Box>
-                <Divider />
-                <MenuItem
-                  onClick={() => {
-                    handleCloseUserMenu()
-                    navigate(PATHS.SESSIONS)
-                  }}
-                >
-                  <ListItemIcon>
-                    <DevicesIcon fontSize="small" />
-                  </ListItemIcon>
-                  Active Sessions
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    handleCloseUserMenu()
-                    navigate(PATHS.LOGIN_HISTORY)
-                  }}
-                >
-                  <ListItemIcon>
-                    <HistoryIcon fontSize="small" />
-                  </ListItemIcon>
-                  Login History
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    handleCloseUserMenu()
-                    navigate(PATHS.CHANGE_PASSWORD)
-                  }}
-                >
-                  <ListItemIcon>
-                    <VpnKeyIcon fontSize="small" />
-                  </ListItemIcon>
-                  Change Password
-                </MenuItem>
-                <Divider />
-                <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
-                  <ListItemIcon>
-                    <LogoutIcon fontSize="small" color="error" />
-                  </ListItemIcon>
-                  Sign Out
-                </MenuItem>
-              </Menu>
-            </>
-          ) : (
-            <AppButton
-              variant="contained"
-              size="small"
-              onClick={() => navigate(PATHS.LOGIN)}
-              startIcon={<LockOpenIcon />}
-            >
-              Sign In
-            </AppButton>
-          )}
-        </Toolbar>
-      </AppBar>
+                <Bell size={18} />
+              </Badge>
+            </IconButton>
+          </Tooltip>
 
-      {/* Navigation Drawer */}
-      <Box
-        component="nav"
-        sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
-        aria-label="Schoolora navigation items"
-      >
-        {/* Mobile temporary drawer */}
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: DRAWER_WIDTH,
-            },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-        {/* Desktop permanent drawer */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: DRAWER_WIDTH,
-            },
-          }}
-          open
-        >
-          {drawerContent}
-        </Drawer>
+          {/* Notifications Popover */}
+          <Popover
+            open={Boolean(notificationAnchor)}
+            anchorEl={notificationAnchor}
+            onClose={() => setNotificationAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            slotProps={{
+              paper: {
+                sx: {
+                  width: 340,
+                  p: 2,
+                  borderRadius: '14px',
+                  boxShadow: '0 10px 25px rgba(15,23,42,0.12)',
+                },
+              },
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                Platform Notifications
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#1e60f0', fontWeight: 700, cursor: 'pointer' }}>
+                Mark all read
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+              <Box sx={{ p: 1, bgcolor: '#eff6ff', borderRadius: '8px' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.78rem' }}>
+                  New school registration request: Sunrise Academy
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#64748b' }}>
+                  2 mins ago
+                </Typography>
+              </Box>
+              <Box sx={{ p: 1, bgcolor: '#f8fafc', borderRadius: '8px' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.78rem' }}>
+                  Subscription payment received: ₹12,000
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#64748b' }}>
+                  40 mins ago
+                </Typography>
+              </Box>
+              <Box sx={{ p: 1, bgcolor: '#f8fafc', borderRadius: '8px' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.78rem' }}>
+                  System backup completed successfully
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#64748b' }}>
+                  1 hr ago
+                </Typography>
+              </Box>
+            </Box>
+          </Popover>
+
+          {/* Theme Toggle (Sun/Moon) */}
+          <Tooltip title={`Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`}>
+            <IconButton
+              onClick={toggleTheme}
+              sx={{
+                p: 1,
+                borderRadius: '10px',
+                color: '#475569',
+                bgcolor: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                '&:hover': { bgcolor: '#f1f5f9' },
+              }}
+            >
+              {mode === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+            </IconButton>
+          </Tooltip>
+
+          {/* Language Selector */}
+          <Box
+            onClick={(e) => setLanguageAnchor(e.currentTarget)}
+            sx={{
+              display: { xs: 'none', sm: 'flex' },
+              alignItems: 'center',
+              gap: 0.75,
+              px: 1.5,
+              py: 0.75,
+              borderRadius: '10px',
+              bgcolor: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              color: '#334155',
+              '&:hover': { bgcolor: '#f1f5f9' },
+            }}
+          >
+            <Globe size={16} color="#64748b" />
+            <span>{selectedLanguage}</span>
+            <ChevronDown size={14} color="#64748b" />
+          </Box>
+
+          <Menu
+            anchorEl={languageAnchor}
+            open={Boolean(languageAnchor)}
+            onClose={() => setLanguageAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            <MenuItem
+              onClick={() => {
+                setSelectedLanguage('English')
+                setLanguageAnchor(null)
+              }}
+            >
+              English
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setSelectedLanguage('Hindi')
+                setLanguageAnchor(null)
+              }}
+            >
+              हिन्दी (Hindi)
+            </MenuItem>
+          </Menu>
+
+          {/* Super Admin User Profile Pill */}
+          <Box
+            onClick={(e) => setUserMenuAnchor(e.currentTarget)}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.25,
+              p: 0.5,
+              pr: { xs: 0.5, sm: 1.25 },
+              borderRadius: '12px',
+              cursor: 'pointer',
+              border: '1px solid #e2e8f0',
+              bgcolor: '#ffffff',
+              transition: 'all 0.2s ease',
+              '&:hover': { bgcolor: '#f8fafc', borderColor: '#cbd5e1' },
+            }}
+          >
+            {/* Red-Orange Circle Avatar with "SA" */}
+            <Box
+              sx={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                bgcolor: '#ea580c',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.84rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 6px rgba(234, 88, 12, 0.3)',
+              }}
+            >
+              SA
+            </Box>
+
+            {/* Name & Role Text */}
+            <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'left' }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem', lineHeight: 1.2 }}
+              >
+                Super Admin
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: '#64748b', fontSize: '0.7rem', display: 'block' }}
+              >
+                Super Administrator
+              </Typography>
+            </Box>
+
+            <ChevronDown size={15} color="#94a3b8" />
+          </Box>
+
+          {/* User Account Menu */}
+          <Menu
+            anchorEl={userMenuAnchor}
+            open={Boolean(userMenuAnchor)}
+            onClose={() => setUserMenuAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            slotProps={{
+              paper: {
+                sx: {
+                  minWidth: 230,
+                  borderRadius: '14px',
+                  p: 0.5,
+                  boxShadow: '0 10px 25px rgba(15,23,42,0.12)',
+                },
+              },
+            }}
+          >
+            <Box sx={{ px: 2, py: 1.5 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                {user ? `${user.firstName} ${user.lastName}` : 'Super Administrator'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#64748b', display: 'block' }}>
+                {user?.email || 'admin@axionexa.com'}
+              </Typography>
+            </Box>
+            {availableSchools.length > 0 && (
+              <>
+                <Divider />
+                <Box sx={{ px: 2, py: 1 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', display: 'block' }}>
+                    Active Campus
+                  </Typography>
+                  <Box
+                    component="select"
+                    value={selectedSchool}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleSchoolChange(e.target.value)}
+                    sx={{
+                      width: '100%',
+                      mt: 0.5,
+                      p: 0.75,
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.75rem',
+                      outline: 'none',
+                    }}
+                  >
+                    {availableSchools.map((sch) => (
+                      <option key={sch.id} value={sch.id}>
+                        {sch.name}
+                      </option>
+                    ))}
+                  </Box>
+                </Box>
+              </>
+            )}
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                setUserMenuAnchor(null)
+                navigate(PATHS.SCHOOL_PROFILE)
+              }}
+            >
+              <User size={16} style={{ marginRight: 10 }} />
+              My Profile
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setUserMenuAnchor(null)
+                navigate(PATHS.SETTINGS)
+              }}
+            >
+              <Settings size={16} style={{ marginRight: 10 }} />
+              System Settings
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setUserMenuAnchor(null)
+                navigate(PATHS.SESSIONS)
+              }}
+            >
+              <Activity size={16} style={{ marginRight: 10 }} />
+              Active Sessions
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={handleLogout} sx={{ color: '#ef4444' }}>
+              <LogOut size={16} style={{ marginRight: 10 }} />
+              Sign Out
+            </MenuItem>
+          </Menu>
+        </Box>
       </Box>
 
-      {/* Main Content Viewport */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: { xs: 2, sm: 3, md: 4 },
-          width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-          mt: '64px',
-          bgcolor: 'background.default',
-        }}
-      >
-        <Outlet />
+      {/* 2. Main Body Container (Sidebar + Content Viewport) */}
+      <Box sx={{ display: 'flex', flexGrow: 1, mt: `${TOP_BAR_HEIGHT}px` }}>
+        {/* Left Navigation Sidebar */}
+        <Box
+          component="nav"
+          sx={{
+            width: { md: currentSidebarWidth },
+            flexShrink: { md: 0 },
+            transition: 'width 0.25s ease',
+          }}
+          aria-label="Super Admin Navigation"
+        >
+          {/* Mobile Overlay Drawer */}
+          <Drawer
+            variant="temporary"
+            open={mobileOpen}
+            onClose={() => setMobileOpen(false)}
+            ModalProps={{ keepMounted: true }}
+            sx={{
+              display: { xs: 'block', md: 'none' },
+              '& .MuiDrawer-paper': {
+                width: SIDEBAR_EXPANDED_WIDTH,
+                boxSizing: 'border-box',
+                border: 'none',
+              },
+            }}
+          >
+            {sidebarContent}
+          </Drawer>
+
+          {/* Desktop Fixed Sidebar */}
+          <Box
+            sx={{
+              display: { xs: 'none', md: 'block' },
+              position: 'fixed',
+              top: TOP_BAR_HEIGHT,
+              left: 0,
+              bottom: 0,
+              width: currentSidebarWidth,
+              borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+              zIndex: 1100,
+              transition: 'width 0.25s ease',
+            }}
+          >
+            {sidebarContent}
+          </Box>
+        </Box>
+
+        {/* 3. Main Dashboard Content Viewport */}
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            width: { md: `calc(100% - ${currentSidebarWidth}px)` },
+            p: { xs: 2, sm: 3, lg: 3.5 },
+            bgcolor: '#f4f6fa',
+            minHeight: `calc(100vh - ${TOP_BAR_HEIGHT}px)`,
+            overflowX: 'hidden',
+          }}
+        >
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   )

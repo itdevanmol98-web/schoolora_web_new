@@ -2,14 +2,14 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
-import SchoolIcon from '@mui/icons-material/School'
+import { AxionexaLogo } from '@/assets/logo/AxionexaLogo'
 
 export interface LoadingScreenProps {
   message?: string
 }
 
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({
-  message = 'Loading Schoolora ERP...',
+  message = 'Loading AxioNexa ERP...',
 }) => {
   return (
     <Box
@@ -26,21 +26,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
       role="status"
       aria-live="polite"
     >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5,
-          mb: 3,
-        }}
-      >
-        <SchoolIcon color="primary" sx={{ fontSize: 44 }} />
-        <Typography variant="h4" sx={{ fontWeight: 700 }} color="text.primary">
-          Schoolora{' '}
-          <Typography component="span" variant="h4" color="primary" sx={{ fontWeight: 700 }}>
-            ERP
-          </Typography>
-        </Typography>
+      <Box sx={{ mb: 3 }}>
+        <AxionexaLogo size="lg" showCompanySubtitle={true} showTagline={false} />
       </Box>
       <CircularProgress size={36} thickness={4} />
       <Typography

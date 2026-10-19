@@ -106,18 +106,19 @@ export const ResetPasswordPage: React.FC = () => {
             justifyContent: 'center',
             p: 1.5,
             borderRadius: '50%',
-            bgcolor: 'primary.main',
-            color: '#fff',
+            bgcolor: 'rgba(30, 58, 138, 0.1)',
+            color: '#1e3a8a',
+            border: '2px solid rgba(30, 58, 138, 0.2)',
             mb: 1.5,
           }}
         >
           <KeyIcon sx={{ fontSize: 32 }} />
         </Box>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a' }}>
           Create New Password
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Your new password must meet Schoolora institutional complexity standards
+          Your new password must meet AxioNexa institutional complexity standards
         </Typography>
       </Box>
 
@@ -140,6 +141,15 @@ export const ResetPasswordPage: React.FC = () => {
             fullWidth
             size="large"
             onClick={() => navigate(PATHS.LOGIN)}
+            sx={{
+              background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+              color: '#fff',
+              fontWeight: 700,
+              boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+              },
+            }}
           >
             Proceed to Sign In
           </AppButton>
@@ -221,7 +231,17 @@ export const ResetPasswordPage: React.FC = () => {
               size="large"
               loading={isLoading}
               loadingText="Updating Password..."
-              sx={{ py: 1.25, mt: 1 }}
+              sx={{
+                py: 1.25,
+                mt: 1,
+                background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                color: '#fff',
+                fontWeight: 700,
+                boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+                },
+              }}
             >
               Reset and Save Password
             </AppButton>

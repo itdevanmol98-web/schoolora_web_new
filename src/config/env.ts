@@ -5,7 +5,7 @@ const envSchema = z.object({
     .string()
     .url('VITE_API_BASE_URL must be a valid URL')
     .default('http://localhost:4000/api/v1'),
-  VITE_APP_NAME: z.string().default('Schoolora ERP'),
+  VITE_APP_NAME: z.string().default('AxioNexa ERP'),
   VITE_APP_ENV: z.enum(['development', 'production', 'test']).default('development'),
   MODE: z.string().optional(),
   DEV: z.boolean().optional(),
@@ -30,7 +30,7 @@ export const env = {
   apiBaseUrl: parsedEnv.success
     ? parsedEnv.data.VITE_API_BASE_URL
     : 'http://localhost:4000/api/v1',
-  appName: parsedEnv.success ? parsedEnv.data.VITE_APP_NAME : 'Schoolora ERP',
+  appName: parsedEnv.success ? parsedEnv.data.VITE_APP_NAME : 'AxioNexa ERP',
   isDev: import.meta.env.DEV ?? false,
   isProd: import.meta.env.PROD ?? false,
   isTest: import.meta.env.MODE === 'test',

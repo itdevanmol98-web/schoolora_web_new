@@ -155,13 +155,22 @@ export const VerifyEmailPage: React.FC = () => {
       {isSuccess ? (
         <Box sx={{ textAlign: 'center', py: 1 }}>
           <Typography variant="body1" sx={{ mb: 3 }}>
-            Thank you for verifying your institutional email address. You may now sign in and access the Schoolora ERP system.
+            Thank you for verifying your institutional email address. You may now sign in and access the AxioNexa ERP system.
           </Typography>
           <AppButton
             variant="contained"
             fullWidth
             size="large"
             onClick={() => navigate(PATHS.LOGIN)}
+            sx={{
+              background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+              color: '#fff',
+              fontWeight: 700,
+              boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+              },
+            }}
           >
             Sign In with Verified Email
           </AppButton>
@@ -175,6 +184,15 @@ export const VerifyEmailPage: React.FC = () => {
             loading={isLoading}
             loadingText="Verifying Token..."
             onClick={() => triggerVerify(token)}
+            sx={{
+              background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+              color: '#fff',
+              fontWeight: 700,
+              boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+              },
+            }}
           >
             Confirm Email Verification
           </AppButton>
@@ -191,7 +209,7 @@ export const VerifyEmailPage: React.FC = () => {
               type="email"
               fullWidth
               required
-              placeholder="user@schoolora.edu"
+              placeholder="user@axionexa.com"
               value={resendEmail}
               onChange={(e) => setResendEmail(e.target.value)}
             />
@@ -201,6 +219,15 @@ export const VerifyEmailPage: React.FC = () => {
               fullWidth
               loading={isResending}
               loadingText="Sending Link..."
+              sx={{
+                background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                color: '#fff',
+                fontWeight: 700,
+                boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+                },
+              }}
             >
               Resend Verification Email
             </AppButton>
