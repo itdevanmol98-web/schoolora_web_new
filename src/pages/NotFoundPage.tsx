@@ -53,7 +53,7 @@ export const NotFoundPage: React.FC = () => {
 
       <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 480, mb: 4 }}>
         The page you are looking for doesn't exist or has been moved. Check the URL or
-        return to the Schoolora dashboard.
+        return to the AxioNexa dashboard.
       </Typography>
 
       <Button

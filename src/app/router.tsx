@@ -63,13 +63,7 @@ export const router = createBrowserRouter([
       // Public Landing & General Entry
       {
         path: '/',
-        element: <AppLayout />,
-        children: [
-          {
-            index: true,
-            element: <LandingPage />,
-          },
-        ],
+        element: <LandingPage />,
       },
 
       // Public-Only Auth Routes (Redirects to dashboard if already authenticated)

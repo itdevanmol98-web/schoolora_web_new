@@ -1,0 +1,321 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap');
+
+/* Landing Page Design Tokens */
+:root {
+  --lp-brand-navy-darker: #060B18;
+  --lp-brand-navy: #0B132B;
+  --lp-brand-navy-light: #152244;
+  --lp-brand-navy-border: rgba(255, 255, 255, 0.12);
+  
+  --lp-brand-blue-dark: #1E3A8A;
+  --lp-brand-blue: #2563EB;
+  --lp-brand-blue-light: #3B82F6;
+  --lp-brand-blue-tint: #EFF6FF;
+
+  --lp-brand-cyan: #00B4D8;
+  --lp-brand-cyan-light: #38BDF8;
+  --lp-brand-cyan-tint: #E0F2FE;
+
+  --lp-brand-orange: #FF6B00;
+  --lp-brand-orange-hover: #E05300;
+  --lp-brand-orange-light: #FF8533;
+  --lp-brand-orange-tint: #FFF7ED;
+
+  --lp-bg-white: #FFFFFF;
+  --lp-bg-slate-soft: #F8FAFC;
+  --lp-bg-slate-subtle: #F1F5F9;
+  --lp-border-light: #E2E8F0;
+  --lp-border-subtle: #CBD5E1;
+
+  --lp-text-main: #0F172A;
+  --lp-text-body: #475569;
+  --lp-text-muted: #64748B;
+  --lp-text-white: #FFFFFF;
+  --lp-text-white-soft: #E2E8F0;
+  --lp-text-white-muted: #94A3B8;
+
+  --lp-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --lp-shadow-sm: 0 2px 8px -1px rgba(15, 23, 42, 0.06), 0 1px 4px -1px rgba(15, 23, 42, 0.04);
+  --lp-shadow-md: 0 4px 20px -2px rgba(15, 23, 42, 0.08), 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+  --lp-shadow-lg: 0 12px 32px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  --lp-shadow-xl: 0 20px 48px -6px rgba(15, 23, 42, 0.16);
+  --lp-shadow-glow-cyan: 0 0 40px rgba(0, 180, 216, 0.35);
+  --lp-shadow-glow-orange: 0 8px 24px rgba(255, 107, 0, 0.35);
+
+  --lp-radius-sm: 8px;
+  --lp-radius-md: 12px;
+  --lp-radius-lg: 16px;
+  --lp-radius-xl: 20px;
+  --lp-radius-2xl: 24px;
+  --lp-radius-full: 9999px;
+
+  --lp-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --lp-transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --lp-transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  --header-height: 76px;
+  --max-width: 1320px;
+}
+
+/* Scoped Landing Root - prevents contaminating ERP styles */
+.public-landing-root {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--lp-text-main);
+  background-color: var(--lp-bg-white);
+  line-height: 1.5;
+  font-size: 15px;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.public-landing-root * {
+  box-sizing: border-box;
+}
+
+.public-landing-root h1,
+.public-landing-root h2,
+.public-landing-root h3,
+.public-landing-root h4,
+.public-landing-root h5,
+.public-landing-root h6 {
+  font-family: 'Poppins', sans-serif;
+  color: var(--lp-text-main);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.public-landing-root a {
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--lp-transition-fast);
+}
+
+.public-landing-root button {
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+.public-landing-root input,
+.public-landing-root textarea,
+.public-landing-root select {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+}
+
+/* Layout Utilities */
+.public-landing-root .container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.public-landing-root .section-py {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+.public-landing-root .section-py-lg {
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+@media (max-width: 768px) {
+  .public-landing-root .section-py {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+  .public-landing-root .section-py-lg {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+  .public-landing-root .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* Text Gradients */
+.public-landing-root .gradient-text-orange {
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.public-landing-root .gradient-text-cyan {
+  background: linear-gradient(135deg, #00B4D8 0%, #2563EB 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Buttons */
+.public-landing-root .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14.5px;
+  padding: 10px 22px;
+  border-radius: var(--lp-radius-md);
+  transition: all var(--lp-transition-normal);
+  white-space: nowrap;
+}
+
+.public-landing-root .btn-sm {
+  padding: 8px 16px;
+  font-size: 13.5px;
+}
+
+.public-landing-root .btn-lg {
+  padding: 13px 28px;
+  font-size: 15.5px;
+  border-radius: var(--lp-radius-lg);
+}
+
+.public-landing-root .btn-primary {
+  background: linear-gradient(135deg, var(--lp-brand-orange) 0%, #FF7F24 100%);
+  color: var(--lp-text-white);
+  box-shadow: 0 4px 14px rgba(255, 107, 0, 0.35);
+}
+
+.public-landing-root .btn-primary:hover {
+  background: linear-gradient(135deg, #FA5A1E 0%, #FF6B00 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.45);
+}
+
+.public-landing-root .btn-secondary {
+  background: var(--lp-bg-white);
+  color: var(--lp-brand-blue);
+  border: 1px solid var(--lp-border-light);
+  box-shadow: var(--lp-shadow-xs);
+}
+
+.public-landing-root .btn-secondary:hover {
+  border-color: var(--lp-brand-blue);
+  background: var(--lp-brand-blue-tint);
+  transform: translateY(-2px);
+}
+
+.public-landing-root .btn-outline-white {
+  background: transparent;
+  color: var(--lp-text-white);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+}
+
+.public-landing-root .btn-outline-white:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--lp-text-white);
+  transform: translateY(-2px);
+}
+
+.public-landing-root .btn-ghost {
+  color: var(--lp-text-body);
+}
+
+.public-landing-root .btn-ghost:hover {
+  color: var(--lp-brand-blue);
+  background: var(--lp-bg-slate-subtle);
+}
+
+/* Glass Cards */
+.public-landing-root .glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--lp-shadow-lg);
+}
+
+.public-landing-root .glass-card-dark {
+  background: rgba(21, 34, 68, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+}
+
+/* Badges */
+.public-landing-root .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--lp-radius-full);
+}
+
+.public-landing-root .badge-blue {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #DBEAFE;
+}
+
+.public-landing-root .badge-orange {
+  background: #FFF7ED;
+  color: #EA580C;
+  border: 1px solid #FFEDD5;
+}
+
+.public-landing-root .badge-cyan {
+  background: #E0F2FE;
+  color: #0284C7;
+  border: 1px solid #BAE6FD;
+}
+
+.public-landing-root .badge-green {
+  background: #F0FDF4;
+  color: #15803D;
+  border: 1px solid #DCFCE7;
+}
+
+/* Animations */
+@keyframes floatUpAndDown {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulseSlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.public-landing-root .animate-float {
+  animation: floatUpAndDown 4s ease-in-out infinite;
+}
+
+.public-landing-root .animate-float-delay {
+  animation: floatUpAndDown 4.5s ease-in-out 1.5s infinite;
+}
+
+.public-landing-root .animate-pulse-glow {
+  animation: pulseSlow 5s ease-in-out infinite;
+}

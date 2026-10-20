@@ -38,7 +38,7 @@ export const DashboardPlaceholderPage: React.FC = () => {
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
       <AppPageHeader
-        title="Schoolora ERP Workspace"
+        title="AxioNexa ERP Workspace"
         subtitle="Phase 1 frontend foundation established. Clean architectural boundaries are ready for backend API integration."
       />
 
@@ -80,5 +80,7 @@ export const DashboardPlaceholderPage: React.FC = () => {
     </Box>
   )
 }
+
+
 
 export default DashboardPlaceholderPage
